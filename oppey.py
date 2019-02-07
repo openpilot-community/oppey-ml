@@ -1,3 +1,4 @@
+import os
 import discord
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
@@ -24,7 +25,10 @@ class MyClient(discord.Client):
       print('Oppey bot is {0}'.format(self.oppey))
 
     async def on_message(self, message):
-      is_oppey = (message.author.id == self.oppey.id)
+      if self.oppey:
+        is_oppey = (message.author.id == self.oppey.id)
+      else:
+        is_oppey = True
       is_self = (message.author.id == self.user.id)
       is_bot_channel = (message.channel.name == "dev-oppey-bot")
       print('{0.author}: {0.content}'.format(message))
@@ -50,4 +54,4 @@ class MyClient(discord.Client):
       #   print('Possible: {0}'.format(response))
 
 client = MyClient()
-client.run('NTQxMzUyMjMxNzI4MDU0Mjk0.Dz04Rw.mvsYLU3-oJMn2BjFd4FE7HRhneE')
+client.run(os.environ.get('OPPEY_ML_TOKEN'))
