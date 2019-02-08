@@ -11,9 +11,6 @@ class MyClient(discord.Client):
       # print(.get(name="Oppey"))
       
       self.oppey = discord.utils.get(self.guilds[0].members,name='Oppey')
-      async with aiohttp.ClientSession() as self.httpClient:
-        # html = await fetch(self.httpClient, 'https://oppey-ml-api.herokuapp.com/')
-        # print(html)
       
       print('Logged on as {0}!'.format(self.user))
       print('Oppey bot is {0}'.format(self.oppey))
@@ -27,11 +24,13 @@ class MyClient(discord.Client):
       is_bot_channel = (message.channel.name == "dev-oppey-bot")
       print('Is Oppey? {1} {0.author}: {0.content}'.format(message, is_oppey or is_self))
       # 
+      async with aiohttp.ClientSession() as self.httpClient:
       # print('OppeyML: {0}'.format(response))
       if is_oppey or is_self:
         return
       if is_bot_channel:
-        await message.channel.send(response)
+        async with self.httpClient.get() as response:
+          return await response.text()
         
       # print("author: {0}".format(message.author.id))
       # print("self: {0}".format(self.user.id))
