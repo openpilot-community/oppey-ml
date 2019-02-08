@@ -1,29 +1,23 @@
 import os
+import aiohttp
 import discord
-from chatterbot import ChatBot
-from chatterbot.trainers import ChatterBotCorpusTrainer
-import logging
-logging.basicConfig(level=logging.INFO)
-chatbot = ChatBot(
-    'OppeyML',
-    storage_adapter='chatterbot.storage.SQLStorageAdapter',
-    # logic_adapters=[
-    #     'chatterbot.logic.MathematicalEvaluation',
-    #     'chatterbot.logic.TimeLogicAdapter',
-    #     'chatterbot.logic.BestMatch'
-    # ],
-    database_uri='sqlite:///database.db'
-)
-trainer = ChatterBotCorpusTrainer(chatbot)
-trainer.train("chatterbot.corpus.english")
+from dotenv import load_dotenv
+load_dotenv()
+async def fetch(session, url):
+  async with session.get(url) as response:
+    return await response.text()
 class MyClient(discord.Client):
     async def on_ready(self):
       # print(.get(name="Oppey"))
       
       self.oppey = discord.utils.get(self.guilds[0].members,name='Oppey')
+      async with aiohttp.ClientSession() as self.httpClient:
+        # html = await fetch(self.httpClient, 'https://oppey-ml-api.herokuapp.com/')
+        # print(html)
+      
       print('Logged on as {0}!'.format(self.user))
       print('Oppey bot is {0}'.format(self.oppey))
-
+    
     async def on_message(self, message):
       if self.oppey:
         is_oppey = (message.author.id == self.oppey.id)
@@ -31,14 +25,12 @@ class MyClient(discord.Client):
         is_oppey = True
       is_self = (message.author.id == self.user.id)
       is_bot_channel = (message.channel.name == "dev-oppey-bot")
-      print('{0.author}: {0.content}'.format(message))
+      print('Is Oppey? {1} {0.author}: {0.content}'.format(message, is_oppey or is_self))
       # 
       # print('OppeyML: {0}'.format(response))
-      
       if is_oppey or is_self:
         return
       if is_bot_channel:
-        response = chatbot.get_response(message.content)
         await message.channel.send(response)
         
       # print("author: {0}".format(message.author.id))
